@@ -32,14 +32,17 @@ alpha_min = 0.01
 alpha_max = 1
 Nalpha    = 1000
 
-#Extend stellar winds to the center?
-#extends solution to center assuming negligibly small injection region
-EXTENDED = False
+# Extend stellar winds to the center?
+# Extend solution to center assuming constant Pressure (only SW)
+EXTEND_W = False
+
+# Extend single explosions to the center?
+# Extend solution to center assuming constant density (only Single SNe)
+EXTEND_S = False
 
 #What do we analyze?
-CRIT_XI  = True               # show critical xi as function of alpha
-SOLUTION = False                # show numerical solution as function of xi
-
+CRIT_XI  = True             # show critical xi as function of alpha
+SOLUTION = False            # show numerical solution as function of xi
 
 #colorscale for plots
 c_alpha  = pl.cm.jet(linspace(0, 1, Nalpha))
@@ -85,12 +88,15 @@ t0 = time()
 V, U, G, Z, P, T, \
 xmin, Pc, Tc, flag = main.integration_wrapper(x, u, alpha, beta, Vhot, \
                                               GAMMA, Nx, Nalpha, Nu)
-    
+
+#do we extend any of the solutions
+EXTENDED = EXTEND_W | EXTEND_S
+
 if EXTENDED:
-    V, U, G, Z, P, T = main.extend(x, V, U, G, Z, P, T, xmin, Pc, flag, alpha, \
-                                   alpha_c, beta, Vhot, GAMMA, Nu, Nalpha)
-    
-    
+    V, U, G, Z, P, T = main.extend(x, V, U, G, Z, P, T, xmin, Pc, \
+                                   flag, alpha,  alpha_c, beta, Vhot, \
+                                   GAMMA, Nu, Nalpha, EXTEND_W, EXTEND_S)
+ 
 t1 = time()
 print("Finished integrating 1D Euler equations for %d sets of parameters."%(Nalpha * Nu))
 dt = t1 - t0

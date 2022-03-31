@@ -225,25 +225,23 @@ def integration_wrapper(x, us, alphas, betas, Vhots, GAMMA, Nx, Nalpha, Nu):
     return V, U, G, Z, P, T, xmin, Pc, Tc, flag
 
 def extend(x, V, U, G, Z, P, T, xmin, Pc, flag, alpha, alpha_c, beta, \
-           Vhot, GAMMA, Nu, Nalpha):
+           Vhot, GAMMA, Nu, Nalpha, EXTEND_W, EXTEND_S):
     for i in range(Nu):
         for j in range(Nalpha):
-            if xmin[i, j] == alpha_c[i]:
-                continue
-            print("Extending solution for i = %d, alpha = %1.2f"%(i, alpha[j]))
-            print("xc = %1.2f"%(xmin[i, j]))
-            bub = where(x < xmin[i, j])
-            shell = where(x >= xmin[i, j])
+            if EXTEND_W and flag[i, j] == 1:
+                print("Extending solution for i = %d, alpha = %1.2f"%(i, alpha[j]))
+                print("xc = %1.2f"%(xmin[i, j]))
+                bub = where(x < xmin[i, j])
+                shell = where(x >= xmin[i, j])
             
-            Vc = V[i, j][shell][0]
+                Vc = V[i, j][shell][0]
             
-            xw = x[bub] / xmin[i, j]
+                xw = x[bub] / xmin[i, j]
             
-            #get mass in shell and mass in wind
-            Mshell = trapz(x[shell], G[i, j][shell] * x[shell]**2)
-            Mwind = max(1/3 - Mshell, 0.0)
-            
-            if flag[i, j] == 1:
+                #get mass in shell and mass in wind
+                Mshell = trapz(x[shell], G[i, j][shell] * x[shell]**2)
+                Mwind = max(1/3 - Mshell, 0.0)
+
                 #isobaric
                 P[i, j][bub] = Pc[i, j]
                 U[i, j][bub] = xmin[i, j] * ((Vc - Vhot[j]) * xw**-2 + Vhot[j] * xw)
@@ -257,7 +255,24 @@ def extend(x, V, U, G, Z, P, T, xmin, Pc, flag, alpha, alpha_c, beta, \
                 #mass in wind
                 norm = trapz(x[bub], G[i, j][bub] * x[bub]**2)
                 G[i, j][bub] *= (Mwind / norm)
-            elif flag[i, j] == 2:
+                
+                #now compute Z and T
+                T[i, j][bub] = P[i, j][bub] / (G[i, j][bub] + 1e-37)
+                Z[i, j][bub] = GAMMA * T[i, j][bub] / x[bub]**2
+            elif EXTEND_S and flag[i, j] == 2:
+                print("Extending solution for i = %d, alpha = %1.2f"%(i, alpha[j]))
+                print("xc = %1.2f"%(xmin[i, j]))
+                bub = where(x < xmin[i, j])
+                shell = where(x >= xmin[i, j])
+            
+                Vc = V[i, j][shell][0]
+            
+                xw = x[bub] / xmin[i, j]
+            
+                #get mass in shell and mass in wind
+                Mshell = trapz(x[shell], G[i, j][shell] * x[shell]**2)
+                Mwind = max(1/3 - Mshell, 0.0)
+                
                 #constant density
                 G[i, j][bub] = 3 * Mwind / xmin[i, j]**3
                 U[i, j][bub] = xmin[i, j] * Vc * xw**-2
@@ -266,9 +281,10 @@ def extend(x, V, U, G, Z, P, T, xmin, Pc, flag, alpha, alpha_c, beta, \
                 P[i, j][bub] = ((1 - V[i, j][shell][-1]) / (xw**3 - Vc) / xmin[i, j]**3)**(GAMMA * Vhot[j])
                 P[i, j][bub] *= Pnorm
             
-            #now compute Z and T
-            T[i, j][bub] = P[i, j][bub] / (G[i, j][bub] + 1e-37)
-            Z[i, j][bub] = GAMMA * T[i, j][bub] / x[bub]**2
+                #now compute Z and T
+                T[i, j][bub] = P[i, j][bub] / (G[i, j][bub] + 1e-37)
+                Z[i, j][bub] = GAMMA * T[i, j][bub] / x[bub]**2
+            
     return V, U, G, Z, P, T
             
             
