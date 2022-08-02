@@ -241,16 +241,14 @@ def extend(x, V, U, G, Z, P, T, xmin, Pc, flag, alpha, alpha_c, beta, \
                 #get mass in shell and mass in wind
                 Mshell = trapz(x[shell], G[i, j][shell] * x[shell]**2)
                 Mwind = max(1/3 - Mshell, 0.0)
+                print("Mass fraction in shell: %g"%(3 * Mshell))
 
                 #isobaric
                 P[i, j][bub] = Pc[i, j]
                 U[i, j][bub] = xmin[i, j] * ((Vc - Vhot[j]) * xw**-2 + Vhot[j] * xw)
                 V[i, j][bub] = U[i, j][bub] / x[bub]
-                if Vhot[j] == 1:
-                    G[i, j][bub] = exp(- Vhot[j] / (1 - Vc) * xw**3)
-                else:
-                    fc = (1 - Vhot[j]) / (Vc - Vhot[j])
-                    G[i, j][bub] = (1 - fc * xw**3)**(Vhot[j] / (Vhot[j] - 1))
+                
+                G[i, j][bub] = (1 - xw**3)**(Vhot[j] / (Vhot[j] - 1))
             
                 #mass in wind
                 norm = trapz(x[bub], G[i, j][bub] * x[bub]**2)
@@ -272,6 +270,7 @@ def extend(x, V, U, G, Z, P, T, xmin, Pc, flag, alpha, alpha_c, beta, \
                 #get mass in shell and mass in wind
                 Mshell = trapz(x[shell], G[i, j][shell] * x[shell]**2)
                 Mwind = max(1/3 - Mshell, 0.0)
+                print("Mass fraction in shell: %g"%(3 * Mshell))
                 
                 #constant density
                 G[i, j][bub] = 3 * Mwind / xmin[i, j]**3

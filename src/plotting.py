@@ -21,15 +21,17 @@ def critical_xi(alpha, xmin, flag, alpha_c, c_u, Nu):
         VZ = where(flag[i] == 2)
         plt.plot(alpha, xmin[i], color = c_u[i])
         #plot where singularity changes
-        plt.plot(alpha[V1[0][0]], xmin[i, V1[0][0]], color = "blue", \
-                 ls = "", marker="o", markersize = 5)
-        plt.plot(alpha[V1[0][-1]], xmin[i, V1[0][-1]], color = "blue", \
-                 ls = "", marker="o", markersize = 5)
-            
-        plt.plot(alpha[VZ[0][0]], xmin[i, VZ[0][0]], color = "red", \
-                 ls = "", marker="o", markersize = 5)
-        plt.plot(alpha[VZ[0][-1]], xmin[i, VZ[0][-1]], color = "red", \
-                 ls = "", marker="o", markersize = 5)
+        if len(V1[0]) > 0:
+            plt.plot(alpha[V1[0][0]], xmin[i, V1[0][0]], color = "blue", \
+                     ls = "", marker="o", markersize = 5)
+            plt.plot(alpha[V1[0][-1]], xmin[i, V1[0][-1]], color = "blue", \
+                     ls = "", marker="o", markersize = 5)
+        
+        if len(VZ[0]) > 0:
+            plt.plot(alpha[VZ[0][0]], xmin[i, VZ[0][0]], color = "red", \
+                     ls = "", marker="o", markersize = 5)
+            plt.plot(alpha[VZ[0][-1]], xmin[i, VZ[0][-1]], color = "red", \
+                     ls = "", marker="o", markersize = 5)
         
     plt.xlabel(r"$\alpha = dlogR/dlogt$")
     plt.ylabel(r"$\xi_c$")
@@ -84,9 +86,9 @@ def solution(x, U, G, P, T, xmin, alpha, u, Nalpha, Nu, EXTENDED):
             ax.set_xlabel(r"$\xi$")
             ax.set_ylabel(r"$v/v_{1}, G/G_{1}, P/P_{1}$")
             ax.set_xlim(x[cut[0][0]], 1)
-            if EXTENDED:
+            if EXTENDED and U[i, j][cut][0] > 0:
                 ax.set_yscale("log")
-                ax.set_xscale("log")
+                #ax.set_xscale("log")
                 ax.vlines(xmin[i, j], *ax.get_ylim(), linestyle="--", \
                           color = "black")
             

@@ -14,6 +14,7 @@ from time import time
 #local libraries
 import src.Euler_solver_1D as main
 import src.plotting as plot
+import src.analysis_tools as tools 
 
 # User Interface
 GAMMA  = 5/3    #adiabatic index
@@ -23,14 +24,14 @@ minx = 0.01
 Nx   = 1000
 
 #define range of shock strengths
-umin = 0.05
+umin = 1
 umax = 1
-Nu   = 5
+Nu   = 1
 
 #define range of  (R ~ t^alpha)
-alpha_min = 0.01
-alpha_max = 1
-Nalpha    = 1000
+alpha_min = 0.4
+alpha_max = 0.4
+Nalpha    = 1
 
 # Extend stellar winds to the center?
 # Extend solution to center assuming constant Pressure (only SW)
@@ -41,8 +42,11 @@ EXTEND_W = False
 EXTEND_S = False
 
 #What do we analyze?
-CRIT_XI  = True             # show critical xi as function of alpha
-SOLUTION = False            # show numerical solution as function of xi
+CRIT_XI  = False            # show critical xi as function of alpha
+SOLUTION = False             # show numerical solution as function of xi
+ENERGY   = True             # compute normalisation from energy conservation
+MOMENTUM = True             # compute total momentum normalisation factor
+THICKNESS= True             # compute thickness of shell
 
 #colorscale for plots
 c_alpha  = pl.cm.jet(linspace(0, 1, Nalpha))
@@ -100,10 +104,19 @@ if EXTENDED:
 t1 = time()
 print("Finished integrating 1D Euler equations for %d sets of parameters."%(Nalpha * Nu))
 dt = t1 - t0
-print("Took %g seconds (%g s / model"%(dt, dt / (Nalpha * Nu)))
+print("Took %g seconds (%g s / model)"%(dt, dt / (Nalpha * Nu)))
 
 if CRIT_XI:
     plot.critical_xi(alpha, xmin, flag, alpha_c, c_u, Nu)
 
 if SOLUTION:
     plot.solution(x, U, G, P, T, xmin, alpha, u, Nalpha, Nu, EXTENDED)
+    
+if ENERGY:
+    tools.total_energy(x, P, G, U, GAMMA, Nalpha, Nu)
+    
+if MOMENTUM: 
+    tools.total_momentum(x, G, U, Nalpha, Nu)
+    
+if THICKNESS:
+    tools.thickness(x, G, Nalpha, Nu, Nx)
